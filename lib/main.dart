@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:projectv2/app/modules/screen/Homescreen.dart';
+import 'package:projectv2/app/modules/home/Homescreen.dart';
+import 'package:projectv2/app/modules/locations/tag/taglocation.dart';
+
 
 void main() {
   runApp(const MyApp());
@@ -8,13 +10,13 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: 'Tracking Demo',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const LocationPickerPage(),
       debugShowCheckedModeBanner: false,
-      home: const Homepage(),
     );
   }
 }
-
