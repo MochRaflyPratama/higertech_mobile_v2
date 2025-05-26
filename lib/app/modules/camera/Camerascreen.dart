@@ -1,15 +1,46 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
-class Camera extends StatefulWidget {
-  const Camera({super.key});
+class ImagePickerScreen extends StatelessWidget {
+  final ImagePicker _picker = ImagePicker();
 
-  @override
-  State<Camera> createState() => _CameraState();
-}
+  Future<void> _pickImage(BuildContext context, ImageSource source) async {
+    final XFile? pickedFile = await _picker.pickImage(source: source);
+    if (pickedFile != null) {
+      final File imageFile = File(pickedFile.path);
+      Navigator.pop(context, imageFile); // Kirim balik ke CreateDataPage
+    }
+  }
 
-class _CameraState extends State<Camera> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Pilih Gambar"),
+        backgroundColor: Colors.blue,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton.icon(
+              icon: const Icon(Icons.camera_alt_outlined),
+              label: const Text("Ambil dari Kamera"),
+              onPressed: () => _pickImage(context, ImageSource.camera),
+              style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(50)),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              icon: const Icon(Icons.photo_library_outlined),
+              label: const Text("Ambil dari Galeri"),
+              onPressed: () => _pickImage(context, ImageSource.gallery),
+              style: ElevatedButton.styleFrom(minimumSize: const Size.fromHeight(50)),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
