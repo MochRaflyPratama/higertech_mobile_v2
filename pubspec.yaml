@@ -23,6 +23,10 @@ dependencies:
   url_launcher: ^6.0.20
   permission_handler: ^11.3.1
   easy_image_viewer: ^1.5.1
+  google_fonts: ^6.2.1
+  get: ^4.6.5
+  http: 1.1.0
+  path: ^1.8.3
 
 dev_dependencies:
   flutter_test:
@@ -33,6 +37,9 @@ dev_dependencies:
 
 
 flutter:
+  assets:
+    - assets/images/hgt.png
+    - assets/images/higertech.png
 
 
   uses-material-design: true

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:projectv2/app/modules/home/Homescreen.dart';
-import 'package:projectv2/app/modules/locations/tag/taglocation.dart';
-
+import 'package:get/get.dart';
+import 'package:projectv2/app/routes/app_route.dart';
+import 'app/routes/app_pages.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,11 +12,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       title: 'Tracking Demo',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: const LocationPickerPage(),
       debugShowCheckedModeBanner: false,
+      initialRoute: AppRoutes.splash,
+      getPages: AppPages.routes,
     );
   }
 }
