@@ -1,142 +1,161 @@
 import 'dart:io';
-
-import 'package:easy_image_viewer/easy_image_viewer.dart';
+import 'package:projectv2/app/services/auth_service.dart'; // sesuaikan path
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:http/http.dart' as http;
+import 'package:path/path.dart';
 import 'package:projectv2/app/modules/camera/Camerascreen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class CreateDataPage extends StatefulWidget {
-  final double latitude;
-  final double longitude;
+class LocationFormPage extends StatefulWidget {
+  final LatLng position;
 
-  const CreateDataPage({
-    Key? key,
-    required this.latitude,
-    required this.longitude,
-  }) : super(key: key);
+  const LocationFormPage({super.key, required this.position});
 
   @override
-  State<CreateDataPage> createState() => _CreateDataPageState();
+  State<LocationFormPage> createState() => _LocationFormPageState();
 }
 
-class _CreateDataPageState extends State<CreateDataPage> {
-  final nameController = TextEditingController();
-  final descController = TextEditingController();
+class _LocationFormPageState extends State<LocationFormPage> {
+  late TextEditingController nameController;
+  late TextEditingController descriptionController;
+  File? selectedImage;
 
-  File? selectedImage; // Gambar yang dipilih dari kamera
+  @override
+  void initState() {
+    super.initState();
+    nameController = TextEditingController();
+    descriptionController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    descriptionController.dispose();
+    super.dispose();
+  }
+
+  Future<String?> _getJwtToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(
+      'jwtToken',
+    ); // Ganti dengan key penyimpanan token milikmu
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Form Tambah Lokasi'),
-        backgroundColor: Colors.blue,
-      ),
+      appBar: AppBar(title: const Text('Form Lokasi')),
       body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: SingleChildScrollView( // Supaya bisa discroll kalau form panjang
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TextFormField(
-                controller: nameController,
-                decoration: const InputDecoration(labelText: 'Point'),
-              ),
-              const SizedBox(height: 16),
-              Text('Koordinat: ${widget.latitude}, ${widget.longitude}'),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Foto',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      final File? image = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => ImagePickerScreen(),
-                        ),
-                      );
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Text(
+              'Koordinat: ${widget.position.latitude}, ${widget.position.longitude}',
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(labelText: 'Title'),
+            ),
+            TextField(
+              controller: descriptionController,
+              decoration: const InputDecoration(labelText: 'Deskripsi'),
+              maxLines: 3,
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Foto',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    final File? image = await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => ImagePickerScreen()),
+                    );
 
-                      if (image != null) {
-                        setState(() {
-                          selectedImage = image;
-                        });
-                      }
-                    },
-                    child: const Text('Tambah'),
-                  ),
-                ],
+                    if (image != null) {
+                      setState(() {
+                        selectedImage = image;
+                      });
+                    }
+  final token = await _getJwtToken();
+                  },
+                  child: const Text('Tambah'),
+                ),
+              ],
+            ),
+            if (selectedImage != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Image.file(selectedImage!, height: 100),
               ),
-              const SizedBox(height: 10),
- if (selectedImage != null)
-  Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      const SizedBox(height: 8),
-       GestureDetector(
-        onTap: () {
-          showImageViewer(
-            context,
-            Image.file(selectedImage!).image,
-            swipeDismissible: true,
-            doubleTapZoomable: true,
-          );
-        },
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(12),
-          child: Image.file(
-            selectedImage!,
-            width: double.infinity,
-            height: 200,
-            fit: BoxFit.cover,
-          ),
-        ),
-      ),
-      const SizedBox(height: 8),
-      Align(
-        alignment: Alignment.centerRight,
-        child: TextButton.icon(
-          onPressed: () {
-            setState(() {
-              selectedImage = null;
-            });
-          },
-          icon: const Icon(Icons.delete_outline, color: Colors.red),
-          label: const Text("Hapus", style: TextStyle(color: Colors.red)),
-        ),
-      )
-    ],
-  ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: descController,
-                decoration: const InputDecoration(labelText: 'Deskripsi'),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  final name = nameController.text;
-                  final desc = descController.text;
+            ElevatedButton(
+              onPressed: () async {
+                final token = await AuthService.getAccessToken();
+                print("JWT Token: $token");
 
-                  // Simpan data atau kirim ke server di sini (termasuk file foto jika perlu)
+                if (token == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Token JWT tidak ditemukan')),
+                  );
+                  return;
+                }
 
+                final name = nameController.text;
+                final description = descriptionController.text;
+                final lat = widget.position.latitude.toString();
+                final lng = widget.position.longitude.toString();
+
+                var uri = Uri.parse(
+                  'http://192.168.110.189:5101/api/mappoints', // Ganti sesuai IP/domain backend kamu
+                );
+
+                var request =
+                    http.MultipartRequest('POST', uri)
+                      ..fields['Title'] = name
+                      ..fields['Description'] = description
+                      ..fields['Latitude'] = lat
+                      ..fields['Longitude'] = lng
+                      ..headers['Authorization'] = 'Bearer $token';
+
+                if (selectedImage != null) {
+                  var imageFile = await http.MultipartFile.fromPath(
+                    'Image',
+                    selectedImage!.path,
+                    filename: basename(selectedImage!.path),
+                  );
+                  request.files.add(imageFile);
+                }
+
+                var response = await request.send();
+
+                if (response.statusCode == 200 || response.statusCode == 201) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Data lokasi disimpan ke server'),
+                    ),
+                  );
+                  Navigator.pop(context);
+                } else {
+                  final error = await response.stream.bytesToString();
+                  print("Gagal: $error");
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
-                        'Disimpan: $name di (${widget.latitude}, ${widget.longitude}) - $desc',
+                        'Gagal menyimpan data (${response.statusCode})',
                       ),
                     ),
                   );
-
-                  Navigator.pop(context);
-                },
-                child: const Text('Simpan Data'),
-              ),
-            ],
-          ),
+                }
+              },
+              child: const Text('Simpan'),
+            ),
+          ],
         ),
       ),
     );

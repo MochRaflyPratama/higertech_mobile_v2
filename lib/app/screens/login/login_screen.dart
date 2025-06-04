@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:projectv2/app/modules/home/Homescreen.dart';
 import 'package:projectv2/app/services/auth_service.dart';
 
-
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -60,8 +59,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          contentPadding:
-                              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -72,7 +73,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           hintText: 'Masukkan password anda',
                           suffixIcon: IconButton(
                             icon: Icon(
-                              _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                              _obscurePassword
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
                             ),
                             onPressed: () {
                               setState(() {
@@ -83,8 +86,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          contentPadding:
-                              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 24),
@@ -99,16 +104,19 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                           onPressed: _isLoading ? null : _handleLogin,
-                          child: _isLoading
-                              ? const CircularProgressIndicator(color: Colors.white)
-                              : Text(
-                                  'Masuk',
-                                  style: GoogleFonts.poppins(
+                          child:
+                              _isLoading
+                                  ? const CircularProgressIndicator(
                                     color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
+                                  )
+                                  : Text(
+                                    'Masuk',
+                                    style: GoogleFonts.poppins(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
-                                ),
                         ),
                       ),
                     ],
@@ -201,17 +209,17 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = false);
 
     if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Login berhasil')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Login berhasil')));
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const Homepage()),
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Login gagal')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Login gagal')));
     }
   }
 }
