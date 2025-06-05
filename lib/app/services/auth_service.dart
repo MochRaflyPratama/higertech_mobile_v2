@@ -2,14 +2,43 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+class UserModel {
+  final String? fullName;
+  final String? email;
+  final String? role;
+  UserModel({this.fullName, this.email, this.role});
+
+  factory UserModel.fromJson(Map<String, dynamic> json) {
+    return UserModel(
+      fullName: json['fullName'] ?? json['FullName'] ?? json['fullname'] ?? json['name'],
+      email: json['email'],
+      role: json['role'],
+    );
+  }
+}
+
 class AuthService {
   static const String baseUrl = 'http://10.0.2.2:5101'; // Ganti sesuai IP kamu
 
-  /// Login ke API dan simpan JWT + RefreshToken + UserId ke SharedPreferences
-  static Future<void> saveTokens(String accessToken, String refreshToken) async {
+  /// Simpan token dan data user ke SharedPreferences
+  static Future<void> saveTokensAndUser(String accessToken, String refreshToken, String email, String fullname, String role) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('accessToken', accessToken);
     await prefs.setString('refreshToken', refreshToken);
+    await prefs.setString('userEmail', email);
+    await prefs.setString('userFullname', fullname);
+    await prefs.setString('userRole', role);
+  }
+
+  static Future<UserModel?> getCurrentUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    final email = prefs.getString('userEmail');
+    final fullname = prefs.getString('userFullname');
+    final role = prefs.getString('userRole');
+    if (email != null && fullname != null) {
+      return UserModel(fullName: fullname, email: email, role: role);
+    }
+    return null;
   }
 
   static Future<String?> getAccessToken() async {
@@ -33,15 +62,19 @@ class AuthService {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      await saveTokens(data['accessToken'], data['refreshToken']);
+      await saveTokensAndUser(
+        data['accessToken'],
+        data['refreshToken'],
+        data['email'] ?? email,
+        data['fullName'] ?? data['FullName'] ?? data['fullname'] ?? data['name'] ?? '',
+        data['role'] ?? '',
+      );
       return true;
     } else {
       return false;
     }
   }
 
-  /// Register user baru ke API
-  /// Return true jika sukses, false jika gagal
   static Future<bool> register(
     String email,
     String password,
@@ -61,11 +94,15 @@ class AuthService {
 
     if (response.statusCode == 201 || response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      await saveTokens(data['accessToken'], data['refreshToken']);
+      await saveTokensAndUser(
+        data['accessToken'],
+        data['refreshToken'],
+        data['email'] ?? email,
+        data['fullName'] ?? data['FullName'] ?? data['fullname'] ?? data['name'] ?? fullname,
+        data['role'] ?? '',
+      );
       return true;
     } else {
-      // Optional: print error message
-      // print('Register failed: [33m${response.body}[0m');
       return false;
     }
   }

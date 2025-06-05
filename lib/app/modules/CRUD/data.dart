@@ -161,9 +161,12 @@ class _LocationFormPageState extends State<LocationFormPage> {
                   );
                   if (response.statusCode == 200) {
                     final decoded = jsonDecode(response.body);
-                    await AuthService.saveTokens(
+                    await AuthService.saveTokensAndUser(
                       decoded['accessToken'],
                       decoded['refreshToken'],
+                      '', // email tidak tersedia saat refresh
+                      '', // fullname tidak tersedia saat refresh
+                      '', // role tidak tersedia saat refresh
                     );
                     return true;
                   }

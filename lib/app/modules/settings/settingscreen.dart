@@ -8,7 +8,7 @@ class SettingsView extends GetView<SettingsController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1D1E33), // Warna biru gelap
+      backgroundColor: const Color(0xFF1D1E33),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -44,20 +44,23 @@ class SettingsView extends GetView<SettingsController> {
                     backgroundColor: Colors.white,
                     child: Icon(Icons.person, size: 60, color: Colors.black),
                   ),
-                  const SizedBox(height: 12),
-                  const Text(
-                    'Admin 1',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                  Obx(
+                    () => Text(
+                      controller.userFullName.value,
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
-                  const Text(
-                    'admin1@example.com',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.white70,
+                  Obx(
+                    () => Text(
+                      controller.userEmail.value,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.white70,
+                      ),
                     ),
                   ),
                 ],
@@ -70,15 +73,22 @@ class SettingsView extends GetView<SettingsController> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Card(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 elevation: 2,
                 color: Colors.white,
                 child: Column(
                   children: [
-                    ListTile(
-                      leading: const Icon(Icons.security),
-                      title: const Text('Hak Akses'),
-                      subtitle: const Text('Administrator'),
+                    Obx(
+                      () => ListTile(
+                        leading: const Icon(Icons.security),
+                        title: const Text('Hak Akses'),
+                        subtitle: Text(
+                          controller.userRole.value,
+                          style: const TextStyle(color: Colors.black54),
+                        ),
+                      ),
                     ),
                   ],
                 ),
