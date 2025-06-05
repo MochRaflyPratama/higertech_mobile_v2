@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 import 'package:projectv2/app/services/auth_service.dart'; // sesuaikan path
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -37,9 +38,7 @@ class _LocationFormPageState extends State<LocationFormPage> {
 
   Future<String?> _getJwtToken() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(
-      'jwtToken',
-    ); // Ganti dengan key penyimpanan token milikmu
+    return prefs.getString('accessToken'); // Key disamakan dengan AuthService
   }
 
   @override
@@ -83,7 +82,7 @@ class _LocationFormPageState extends State<LocationFormPage> {
                         selectedImage = image;
                       });
                     }
-  final token = await _getJwtToken();
+                    final token = await _getJwtToken();
                   },
                   child: const Text('Tambah'),
                 ),
@@ -96,9 +95,83 @@ class _LocationFormPageState extends State<LocationFormPage> {
               ),
             ElevatedButton(
               onPressed: () async {
-                final token = await AuthService.getAccessToken();
-                print("JWT Token: $token");
+                Future<bool> sendLocationData(String token) async {
+                  final name = nameController.text;
+                  final description = descriptionController.text;
+                  final lat = widget.position.latitude.toString();
+                  final lng = widget.position.longitude.toString();
 
+                  var uri = Uri.parse('http://10.0.2.2:5101/api/mappoints');
+
+                  var request =
+                      http.MultipartRequest('POST', uri)
+                        ..fields['Title'] = name
+                        ..fields['Description'] = description
+                        ..fields['Latitude'] = lat
+                        ..fields['Longitude'] = lng
+                        ..headers['Authorization'] = 'Bearer $token';
+
+                  if (selectedImage != null) {
+                    var imageFile = await http.MultipartFile.fromPath(
+                      'Image',
+                      selectedImage!.path,
+                      filename: basename(selectedImage!.path),
+                    );
+                    request.files.add(imageFile);
+                  }
+
+                  var response = await request.send();
+                  print('Status code: \\${response.statusCode}');
+                  final responseBody = await response.stream.bytesToString();
+                  print('Response body: \\${responseBody}');
+                  if (response.statusCode == 200 ||
+                      response.statusCode == 201) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Data lokasi disimpan ke server'),
+                      ),
+                    );
+                    Navigator.pop(context);
+                    return true;
+                  } else if (response.statusCode == 401) {
+                    return false; // Token expired/unauthorized
+                  } else {
+                    print("Gagal: $responseBody");
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          'Gagal menyimpan data (${response.statusCode})',
+                        ),
+                      ),
+                    );
+                    return true; // Sudah ditangani, tidak perlu retry
+                  }
+                }
+
+                Future<bool> refreshAccessToken() async {
+                  final refreshToken = await AuthService.getRefreshToken();
+                  if (refreshToken == null) return false;
+                  final uri = Uri.parse(
+                    'http://10.0.2.2:5101/api/apiauth/refresh',
+                  );
+                  final response = await http.post(
+                    uri,
+                    headers: {'Content-Type': 'application/json'},
+                    body: '"$refreshToken"', // Kirim string token dengan kutip
+                  );
+                  if (response.statusCode == 200) {
+                    final decoded = jsonDecode(response.body);
+                    await AuthService.saveTokens(
+                      decoded['accessToken'],
+                      decoded['refreshToken'],
+                    );
+                    return true;
+                  }
+                  return false;
+                }
+
+                var token = await AuthService.getAccessToken();
+                print("JWT Token: $token");
                 if (token == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Token JWT tidak ditemukan')),
@@ -106,51 +179,20 @@ class _LocationFormPageState extends State<LocationFormPage> {
                   return;
                 }
 
-                final name = nameController.text;
-                final description = descriptionController.text;
-                final lat = widget.position.latitude.toString();
-                final lng = widget.position.longitude.toString();
-
-                var uri = Uri.parse(
-                  'http://192.168.110.189:5101/api/mappoints', // Ganti sesuai IP/domain backend kamu
-                );
-
-                var request =
-                    http.MultipartRequest('POST', uri)
-                      ..fields['Title'] = name
-                      ..fields['Description'] = description
-                      ..fields['Latitude'] = lat
-                      ..fields['Longitude'] = lng
-                      ..headers['Authorization'] = 'Bearer $token';
-
-                if (selectedImage != null) {
-                  var imageFile = await http.MultipartFile.fromPath(
-                    'Image',
-                    selectedImage!.path,
-                    filename: basename(selectedImage!.path),
-                  );
-                  request.files.add(imageFile);
-                }
-
-                var response = await request.send();
-
-                if (response.statusCode == 200 || response.statusCode == 201) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Data lokasi disimpan ke server'),
-                    ),
-                  );
-                  Navigator.pop(context);
-                } else {
-                  final error = await response.stream.bytesToString();
-                  print("Gagal: $error");
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'Gagal menyimpan data (${response.statusCode})',
+                bool success = await sendLocationData(token);
+                if (!success) {
+                  // Coba refresh token
+                  bool refreshed = await refreshAccessToken();
+                  if (refreshed) {
+                    final newToken = await AuthService.getAccessToken();
+                    await sendLocationData(newToken!);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Sesi login habis, silakan login ulang.'),
                       ),
-                    ),
-                  );
+                    );
+                  }
                 }
               },
               child: const Text('Simpan'),
