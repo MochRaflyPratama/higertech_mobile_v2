@@ -148,7 +148,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         style: TextStyle(color: Colors.white70),
                       ),
                     ),
-                    // Expanded(child: Divider(color: Colors.white70)),
+                    Expanded(child: Divider(color: Colors.white70)),
                   ],
                 ),
                 const SizedBox(height: 16),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:projectv2/app/modules/home/Homescreen.dart';
+import 'package:projectv2/app/screens/login/register_screen.dart';
 import 'package:projectv2/app/services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -144,11 +145,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 12),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.white),
-                      borderRadius: BorderRadius.circular(8),
-                      color: Colors.white,
-                    ),
                     // Aktifkan ini jika ingin menampilkan logo Google
                     // child: Row(
                     //   mainAxisAlignment: MainAxisAlignment.center,
@@ -166,30 +162,30 @@ class _LoginScreenState extends State<LoginScreen> {
                     // ),
                   ),
                 ),
-                // const SizedBox(height: 20),
-                // GestureDetector(
-                //   onTap: () {
-                //     Navigator.push(
-                //       context,
-                //       MaterialPageRoute(builder: (_) => const RegisterScreen()),
-                //     );
-                //   },
-                //   child: RichText(
-                //     text: TextSpan(
-                //       text: 'Belum Punya Akun? ',
-                //       style: GoogleFonts.poppins(color: Colors.white70),
-                //       children: [
-                //         TextSpan(
-                //           text: 'Daftar',
-                //           style: GoogleFonts.poppins(
-                //             color: Colors.white,
-                //             fontWeight: FontWeight.bold,
-                //           ),
-                //         )
-                //       ],
-                //     ),
-                //   ),
-                // )
+                const SizedBox(height: 20),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                    );
+                  },
+                  child: RichText(
+                    text: TextSpan(
+                      text: 'Belum Punya Akun? ',
+                      style: GoogleFonts.poppins(color: Colors.white70),
+                      children: [
+                        TextSpan(
+                          text: 'Daftar',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                )
               ],
             ),
           ),
