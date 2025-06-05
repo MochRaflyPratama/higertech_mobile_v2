@@ -11,8 +11,8 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  final TextEditingController emailController = TextEditingController();
   final TextEditingController usernameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
   bool _obscurePassword = true;
@@ -54,9 +54,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       const SizedBox(height: 20),
                       TextField(
-                        controller: emailController,
+                        controller: usernameController,
                         decoration: InputDecoration(
-                          hintText: 'Masukkan email',
+                          hintText: 'Masukkan username',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -68,9 +68,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       const SizedBox(height: 16),
                       TextField(
-                        controller: usernameController,
+                        controller: emailController,
                         decoration: InputDecoration(
-                          hintText: 'Masukkan username',
+                          hintText: 'Masukkan email',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -218,8 +218,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     final success = await AuthService.register(
       emailController.text.trim(),
-      usernameController.text.trim(),
       passwordController.text.trim(),
+      usernameController.text.trim(),
     );
 
     setState(() => _isLoading = false);
