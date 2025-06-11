@@ -1,27 +1,31 @@
 import 'package:get/get.dart';
-import 'folder_model.dart';
-import 'folder_provider.dart';
+import 'package:projectv2/app/modules/folder/folder_model.dart';
+import 'package:projectv2/app/modules/folder/folder_repository.dart';
 
 class FolderController extends GetxController {
-  var fileList = <FolderItemModel>[].obs;
-  var isLoading = true.obs;
+  final FolderRepository repository;
 
-  final FolderProvider _provider = FolderProvider();
+  FolderController(this.repository);
+
+  var isLoading = true.obs;
+  var mapPoints = <FolderItemModel>[].obs;
 
   @override
   void onInit() {
-    fetchFiles();
+    fetchPoints();
     super.onInit();
   }
 
-  void fetchFiles() async {
+  void fetchPoints() async {
     try {
-      isLoading.value = true;
-      fileList.value = await _provider.fetchUploadedFiles();
+      isLoading(true);
+      final result = await repository.fetchMapPoints();
+      mapPoints.assignAll(result);
     } catch (e) {
-      Get.snackbar('Error', 'Gagal memuat data');
+      print('Error saat fetch: $e');
+      Get.snackbar('Error', e.toString());
     } finally {
-      isLoading.value = false;
+      isLoading(false);
     }
   }
 }
