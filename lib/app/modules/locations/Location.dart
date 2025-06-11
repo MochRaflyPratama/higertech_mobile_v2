@@ -15,7 +15,7 @@ class MapPage extends StatefulWidget {
 
 class _MapPageState extends State<MapPage> {
   GoogleMapController? mapController;
-  LatLng _currentPosition = const LatLng(-7.797068, 110.370529);
+  LatLng _currentPosition = const LatLng(-6.917464, 107.619123);
   final Map<MarkerId, Marker> _markers = {};
   bool _isDisposed = false;
 
@@ -35,12 +35,7 @@ class _MapPageState extends State<MapPage> {
     super.dispose();
   }
 
-  // Future<void> _initializeMap() async {
-  //   await _setCurrentLocation();
-  //   await _fetchMarkersFromAPI();
-  // }
-
-  Future<void> _setCurrentLocation() async {
+  Future<void> _setCurrentLocation({bool moveCamera = false}) async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) return;
 
@@ -56,12 +51,13 @@ class _MapPageState extends State<MapPage> {
 
     Position position = await Geolocator.getCurrentPosition();
     if (!_isDisposed) {
-      // Pastikan widget masih ada sebelum setState
       setState(() {
         _currentPosition = LatLng(position.latitude, position.longitude);
       });
     }
-    mapController?.animateCamera(CameraUpdate.newLatLng(_currentPosition));
+    if (moveCamera && mapController != null) {
+      mapController?.animateCamera(CameraUpdate.newLatLng(_currentPosition));
+    }
   }
 
   Future<void> _fetchMarkersFromAPI({bool moveToFirstMarker = false}) async {
@@ -132,7 +128,9 @@ class _MapPageState extends State<MapPage> {
     );
 
     if (isSaved == true) {
-      await _fetchMarkersFromAPI(moveToFirstMarker: true); // Re-fetch markers setelah simpan
+      await _fetchMarkersFromAPI(
+        moveToFirstMarker: true,
+      ); // Re-fetch markers setelah simpan
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Lokasi baru disimpan dan marker diperbarui')),
       );
@@ -159,6 +157,15 @@ class _MapPageState extends State<MapPage> {
     );
   }
 
+  /// Fungsi baru untuk refresh: update lokasi user, ambil marker, lalu pindahkan kamera ke lokasi user
+  Future<void> _refreshMap() async {
+    await _setCurrentLocation(moveCamera: true);
+    await _fetchMarkersFromAPI();
+    if (!_isDisposed && mapController != null) {
+      mapController!.animateCamera(CameraUpdate.newLatLng(_currentPosition));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -168,11 +175,14 @@ class _MapPageState extends State<MapPage> {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () async {
-              // await _setCurrentLocation();
-              await _fetchMarkersFromAPI();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Marker berhasil diperbarui')),
-              );
+              await _refreshMap();
+              if (!_isDisposed) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Peta dan marker berhasil diperbarui'),
+                  ),
+                );
+              }
             },
           ),
         ],
