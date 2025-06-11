@@ -29,13 +29,13 @@ class _SplashScreenState extends State<SplashScreen> {
           children: [
             // Logo animasi atau gambar
             Image.asset(
-              'assets/images/hgt.png',
+              'assets/images/LogoHigertrack.png',
               height: 120,
             ),
             const SizedBox(height: 24),
             // Nama aplikasi
             Text(
-              "GPS Mapp",
+              "Higertrack",
               style: TextStyle(
                 fontSize: 26,
                 fontWeight: FontWeight.bold,

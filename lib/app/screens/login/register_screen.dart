@@ -44,6 +44,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                Image.asset(
+                  'assets/images/LogoHigertrack.png',
+                    height: 100,
+                    ),
+                  const SizedBox(height: 24),
                       Text(
                         'Daftar Akun',
                         style: GoogleFonts.poppins(

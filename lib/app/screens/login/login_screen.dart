@@ -42,8 +42,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                   ),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
+                Image.asset(
+                  'assets/images/LogoHigertrack.png',
+                    height: 100,
+                    ),
+                   const SizedBox(height: 24),
                       Text(
                         'Masuk Akun',
                         style: GoogleFonts.poppins(
@@ -56,7 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       TextField(
                         controller: emailController,
                         decoration: InputDecoration(
-                          hintText: 'Masukkan email atau username',
+                          hintText: 'Masukkan email ',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -71,7 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         controller: passwordController,
                         obscureText: _obscurePassword,
                         decoration: InputDecoration(
-                          hintText: 'Masukkan password anda',
+                          hintText: 'Masukkan password ',
                           suffixIcon: IconButton(
                             icon: Icon(
                               _obscurePassword

@@ -41,6 +41,7 @@ flutter:
   assets:
     - assets/images/hgt.png
     - assets/images/higertech.png
+    - assets/images/LogoHigertrack.png
 
 
   uses-material-design: true
