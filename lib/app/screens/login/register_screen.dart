@@ -42,7 +42,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ],
                   ),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                 Image.asset(
                   'assets/images/LogoHigertrack.png',
@@ -57,7 +57,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           color: Colors.black87,
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 24),
                       TextField(
                         controller: usernameController,
                         decoration: InputDecoration(

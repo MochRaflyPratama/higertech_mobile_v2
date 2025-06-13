@@ -11,7 +11,12 @@ class FolderView extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Map Points'),
+        title: const Text('Map Points',
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 22,
+        ),
+        ),
         backgroundColor: const Color(0xFF2D2E49),
       ),
       body: Obx(() {
@@ -49,10 +54,33 @@ class FolderView extends StatelessWidget {
                     Text('Longitude: ${point.longitude}'),
                   ],
                 ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.edit),
+                      onPressed: () {
+                        
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete),
+                      onPressed: () {
+                        
+                      },
+                    ),
+                  ],
+                ),
+                
                 onTap: () {
                   Get.defaultDialog(
                     title: point.title ?? 'Detail',
-                    content: Column(
+                      titleStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    radius: 10,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    content: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.8,
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('Deskripsi: ${point.description ?? "-"}'),
@@ -60,6 +88,7 @@ class FolderView extends StatelessWidget {
                         Text('Longitude: ${point.longitude}'),
                         Text('Created at: ${point.createdAt}'),
                       ],
+                    ),
                     ),
                   );
                 },

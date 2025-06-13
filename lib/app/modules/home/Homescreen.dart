@@ -37,12 +37,10 @@ class Homepage extends StatelessWidget {
                   shape: BoxShape.circle,
                   color: Color(0xFFE0E0E0),
                 ),
-                child: Center(
-                  child: IconButton(
-                    icon: const Icon(Icons.public, size: 120, color: Colors.blue),
-                    onPressed: _openMapFromLocation,
-                  ),
-                ),
+                child: GestureDetector(
+                  onTap: () => Get.toNamed(AppRoutes.location), 
+                  child:  Image.asset('assets/images/LogoHigertrack.png', fit: BoxFit.cover,),
+                )
               ),
             ),
 

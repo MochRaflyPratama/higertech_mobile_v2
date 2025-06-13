@@ -23,7 +23,7 @@ class MapPoint {
     return MapPoint(
       id: json['id'] as int,
       title: json['title'] as String? ?? '',
-      description: json['description'] as String?? '',
+      description: json['description'] as String? ?? '',
       latitude: (json['latitude'] as num).toDouble(),
       longitude: (json['longitude'] as num).toDouble(),
       imageUrl: json['imageUrl']as String?,

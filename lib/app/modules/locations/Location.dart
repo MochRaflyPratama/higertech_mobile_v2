@@ -38,6 +38,12 @@ class _MapPageState extends State<MapPage> {
   Future<void> _setCurrentLocation({bool moveCamera = false}) async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) return;
+    try {
+  Position position = await Geolocator.getCurrentPosition();
+  // ...
+} catch (e) {
+  print('Error getting location: $e');
+}
 
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied ||
@@ -170,10 +176,16 @@ class _MapPageState extends State<MapPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Google Maps'),
+        title: const Text('Google Maps',                    
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 22,
+              ),
+            ),
+        backgroundColor: const Color(0xFF2D2E49),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh, color: Colors.white,),
             onPressed: () async {
               await _refreshMap();
               if (!_isDisposed) {

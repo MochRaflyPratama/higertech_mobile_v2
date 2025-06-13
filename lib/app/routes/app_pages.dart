@@ -3,7 +3,6 @@ import 'package:projectv2/app/modules/folder/folder_binding.dart';
 import 'package:projectv2/app/modules/folder/folder_view.dart';
 import 'package:projectv2/app/modules/home/Homescreen.dart';
 import 'package:projectv2/app/modules/locations/Location.dart';
-import 'package:projectv2/app/modules/locations/tag/taglocation.dart';
 import 'package:projectv2/app/modules/settings/controller/setting_controller.dart';
 import 'package:projectv2/app/modules/settings/settingscreen.dart';
 import 'package:projectv2/app/routes/app_route.dart';
