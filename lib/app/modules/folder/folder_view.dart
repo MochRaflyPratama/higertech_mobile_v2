@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:projectv2/app/modules/folder/edit/edit_folder_view.dart';
 import 'package:projectv2/app/modules/folder/folder_controller.dart';
 
 class FolderView extends StatelessWidget {
@@ -11,11 +12,12 @@ class FolderView extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Map Points',
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 22,
-        ),
+        title: const Text(
+          'Map Points',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 22,
+          ),
         ),
         backgroundColor: const Color(0xFF2D2E49),
       ),
@@ -58,37 +60,46 @@ class FolderView extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.edit),
+                      icon: const Icon(Icons.edit, color: Colors.blue),
                       onPressed: () {
-                        
+                        Get.to(() => EditFolderView(point: point));
                       },
                     ),
                     IconButton(
-                      icon: const Icon(Icons.delete),
+                      icon: const Icon(Icons.delete, color: Colors.red),
                       onPressed: () {
-                        
+                        Get.defaultDialog(
+                          title: 'Konfirmasi',
+                          content: const Text('Yakin ingin menghapus data ini?'),
+                          textCancel: 'Batal',
+                          textConfirm: 'Hapus',
+                          confirmTextColor: Colors.white,
+                          onConfirm: () {
+                            controller.deleteMapPoint(point.id);
+                            Get.back();
+                          },
+                        );
                       },
                     ),
                   ],
                 ),
-                
                 onTap: () {
                   Get.defaultDialog(
                     title: point.title ?? 'Detail',
-                      titleStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    titleStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     radius: 10,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     content: SizedBox(
                       width: MediaQuery.of(context).size.width * 0.8,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Deskripsi: ${point.description ?? "-"}'),
-                        Text('Latitude: ${point.latitude}'),
-                        Text('Longitude: ${point.longitude}'),
-                        Text('Created at: ${point.createdAt}'),
-                      ],
-                    ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Deskripsi: ${point.description ?? "-"}'),
+                          Text('Latitude: ${point.latitude}'),
+                          Text('Longitude: ${point.longitude}'),
+                          Text('Created at: ${point.createdAt}'),
+                        ],
+                      ),
                     ),
                   );
                 },

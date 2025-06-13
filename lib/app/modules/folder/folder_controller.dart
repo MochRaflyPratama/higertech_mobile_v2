@@ -28,4 +28,30 @@ class FolderController extends GetxController {
       isLoading(false);
     }
   }
+
+  void deleteMapPoint(int id) async {
+    try {
+      isLoading(true);
+      await repository.deleteMapPoint(id); // Pastikan ada method ini di repository
+      fetchPoints(); // Refresh list
+      Get.snackbar('Berhasil', 'Data berhasil dihapus');
+    } catch (e) {
+      Get.snackbar('Gagal', 'Gagal menghapus data: $e');
+    } finally {
+      isLoading(false);
+    }
+  }
+
+  void updateMapPoint(FolderItemModel updatedPoint) async {
+    try {
+      isLoading(true);
+      await repository.updateMapPoint(updatedPoint);
+      fetchPoints();
+      Get.snackbar('Sukses', 'Data berhasil diperbarui');
+    } catch (e) {
+      Get.snackbar('Error', 'Gagal update: $e');
+    } finally {
+      isLoading(false);
+    }
+  }
 }
