@@ -33,4 +33,59 @@ class FolderRepository {
       throw Exception('Failed to load map points (${response.statusCode})');
     }
   }
+
+  Future<void> deleteMapPoint(int id) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('accessToken');
+
+    if (token == null || token.isEmpty) {
+      throw Exception('Token tidak ditemukan. Silakan login kembali.');
+    }
+
+    final response = await http.delete(
+      Uri.parse('$baseUrl/$id'), // DELETE ke endpoint MapPoints/{id}
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    print('Delete status: ${response.statusCode}');
+    print('Delete body: ${response.body}');
+
+    if (response.statusCode != 200) {
+      throw Exception('Gagal menghapus data (${response.statusCode})');
+    }
+  }
+
+  Future<void> updateMapPoint(FolderItemModel point) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('accessToken');
+
+    if (token == null || token.isEmpty) {
+      throw Exception('Token tidak ditemukan.');
+    }
+
+    final response = await http.put(
+      Uri.parse('$baseUrl/${point.id}'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'id': point.id,
+        'title': point.title,
+        'description': point.description,
+        'latitude': point.latitude,
+        'longitude': point.longitude,
+        'imageUrl': point.imageUrl,
+      }),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Gagal update data (${response.statusCode})');
+    }
+  }
+
+
 }
