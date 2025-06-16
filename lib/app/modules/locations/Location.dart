@@ -75,9 +75,15 @@ class _MapPageState extends State<MapPage> {
       headers: {'Authorization': 'Bearer $token'},
     );
 
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
+    if (response.statusCode == 200) {da
       final Map<MarkerId, Marker> fetchedMarkers = {};
+      final decoded = jsonDecode(response.body);
+      if (decoded is! Map<String, dynamic> || decoded['data'] is! List) {
+        print('Format JSON tidak sesuai');
+        return;
+      }
+      final List<dynamic> data = decoded['data'];
+
 
       for (var item in data) {
         final lat = double.tryParse(item['latitude'].toString());
