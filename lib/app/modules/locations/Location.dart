@@ -75,7 +75,7 @@ class _MapPageState extends State<MapPage> {
       headers: {'Authorization': 'Bearer $token'},
     );
 
-    if (response.statusCode == 200) {da
+    if (response.statusCode == 200) {
       final Map<MarkerId, Marker> fetchedMarkers = {};
       final decoded = jsonDecode(response.body);
       if (decoded is! Map<String, dynamic> || decoded['data'] is! List) {
