@@ -35,7 +35,7 @@ class _SplashScreenState extends State<SplashScreen> {
             const SizedBox(height: 24),
             // Nama aplikasi
             Text(
-              "Higertrack",
+              "Bapenda Kalteng 1",
               style: TextStyle(
                 fontSize: 26,
                 fontWeight: FontWeight.bold,
