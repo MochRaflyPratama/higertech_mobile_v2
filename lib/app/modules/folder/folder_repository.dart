@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 
 class FolderRepository {
-  final String baseUrl = 'http://10.0.2.2:5101/api/MapPoints';
+  final String baseUrl = 'http://103.183.75.71:5101/api/MapPoints';
 
 Future<List<FolderItemModel>> fetchMapPoints() async {
   final prefs = await SharedPreferences.getInstance();

@@ -17,8 +17,14 @@ class ImagePickerScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Pilih Gambar"),
-        backgroundColor: Colors.blue,
+        title: const Text("Pilih Gambar",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 22,
+            )
+        ),
+        backgroundColor: const Color(0xFF2D2E49,
+      ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(24),

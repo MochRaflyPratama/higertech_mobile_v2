@@ -67,7 +67,7 @@ class _MapPageState extends State<MapPage> {
   }
 
   Future<void> _fetchMarkersFromAPI({bool moveToFirstMarker = false}) async {
-    final url = Uri.parse('http://10.0.2.2:5101/api/mappoints');
+    final url = Uri.parse('http://103.183.75.71:5101/api/mappoints');
     final token = await AuthService.getAccessToken();
 
     final response = await http.get(
@@ -171,7 +171,7 @@ class _MapPageState extends State<MapPage> {
 
   /// Fungsi baru untuk refresh: update lokasi user, ambil marker, lalu pindahkan kamera ke lokasi user
   Future<void> _refreshMap() async {
-    await _setCurrentLocation(moveCamera: true);
+    await _setCurrentLocation(moveCamera: false);
     await _fetchMarkersFromAPI();
     if (!_isDisposed && mapController != null) {
       mapController!.animateCamera(CameraUpdate.newLatLng(_currentPosition));

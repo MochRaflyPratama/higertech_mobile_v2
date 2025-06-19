@@ -75,7 +75,7 @@ class _EditFolderViewState extends State<EditFolderView> {
       return;
     }
 
-    final uri = Uri.parse('http://10.0.2.2:5101/api/MapPoints/${widget.point.id}');
+    final uri = Uri.parse('http://103.183.75.71:5101/api/MapPoints/${widget.point.id}');
     final request = http.MultipartRequest('PUT', uri)
       ..fields['Title'] = titleController.text
       ..fields['Description'] = descriptionController.text

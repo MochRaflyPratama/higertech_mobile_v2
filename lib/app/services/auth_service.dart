@@ -18,7 +18,7 @@ class UserModel {
 }
 
 class AuthService {
-  static const String baseUrl = 'http://10.0.2.2:5101'; // Ganti sesuai IP kamu
+  static const String baseUrl = 'http://103.183.75.71:5101'; // Ganti sesuai IP kamu
 
   /// Simpan token dan data user ke SharedPreferences
   static Future<void> saveTokensAndUser(String accessToken, String refreshToken, String email, String fullname, String role) async {
