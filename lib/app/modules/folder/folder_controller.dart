@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:projectv2/app/modules/folder/folder_model.dart';
 import 'package:projectv2/app/modules/folder/folder_repository.dart';
+import 'package:projectv2/app/services/auth_service.dart';
 
 class FolderController extends GetxController {
   final FolderRepository repository;
@@ -19,10 +20,25 @@ class FolderController extends GetxController {
   void fetchPoints() async {
     try {
       isLoading(true);
-      final result = await repository.fetchMapPoints();
-      mapPoints.assignAll(result);
+
+      final result = await repository.fetchMapPoints(); // Ambil semua data
+      final user = await AuthService.getCurrentUser();
+      final userId = user?.id?.toLowerCase().trim();
+      final role = user?.role?.toLowerCase().trim();
+
+      print("🔍 Current User ID: $userId, role: $role");
+
+      // Filter berdasarkan role
+      final filtered =
+          role == 'admin'
+              ? result
+              : result
+                  .where((p) => p.createdBy?.toLowerCase().trim() == userId)
+                  .toList();
+
+      mapPoints.assignAll(filtered);
     } catch (e) {
-      print('Error saat fetch: $e');
+      print('❌ Error saat fetch: $e');
       Get.snackbar('Error', e.toString());
     } finally {
       isLoading(false);
@@ -32,7 +48,7 @@ class FolderController extends GetxController {
   void deleteMapPoint(int id) async {
     try {
       isLoading(true);
-      await repository.deleteMapPoint(id); // Pastikan ada method ini di repository
+      await repository.deleteMapPoint(id); // Panggil repository delete
       fetchPoints(); // Refresh list
       Get.snackbar('Berhasil', 'Data berhasil dihapus');
     } catch (e) {

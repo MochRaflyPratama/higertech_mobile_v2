@@ -31,44 +31,54 @@ class _MapPageState extends State<MapPage> {
   @override
   void dispose() {
     _isDisposed = true;
-    // mapController?.dispose();
     super.dispose();
   }
 
   Future<void> _setCurrentLocation({bool moveCamera = false}) async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) return;
+
     try {
-  Position position = await Geolocator.getCurrentPosition();
-  // ...
-} catch (e) {
-  print('Error getting location: $e');
-}
-
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied ||
-        permission == LocationPermission.deniedForever) {
-      permission = await Geolocator.requestPermission();
-      if (permission != LocationPermission.always &&
-          permission != LocationPermission.whileInUse) {
-        return;
+      Position position = await Geolocator.getCurrentPosition();
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        permission = await Geolocator.requestPermission();
+        if (permission != LocationPermission.always &&
+            permission != LocationPermission.whileInUse) {
+          return;
+        }
       }
-    }
 
-    Position position = await Geolocator.getCurrentPosition();
-    if (!_isDisposed) {
-      setState(() {
-        _currentPosition = LatLng(position.latitude, position.longitude);
-      });
-    }
-    if (moveCamera && mapController != null) {
-      mapController?.animateCamera(CameraUpdate.newLatLng(_currentPosition));
+      if (!_isDisposed) {
+        setState(() {
+          _currentPosition = LatLng(position.latitude, position.longitude);
+        });
+      }
+
+      if (moveCamera && mapController != null) {
+        mapController?.animateCamera(CameraUpdate.newLatLng(_currentPosition));
+      }
+    } catch (e) {
+      debugPrint('Error getting location: $e');
     }
   }
 
+  /// Ambil info user (role & userId) dari AuthService
+  Future<Map<String, String?>> _getUserInfo() async {
+    final user = await AuthService.getCurrentUser();
+    debugPrint("DEBUG USER: ${user?.id} | ${user?.role}");
+    return {'role': user?.role, 'email': user?.email, 'userId': user?.id};
+  }
+
+  /// Ambil data marker dari API dan filter sesuai role user
   Future<void> _fetchMarkersFromAPI({bool moveToFirstMarker = false}) async {
     final url = Uri.parse('http://103.183.75.71:5101/api/mappoints');
     final token = await AuthService.getAccessToken();
+    final userInfo = await _getUserInfo();
+
+    final userRole = (userInfo['role'] ?? '').toLowerCase().trim();
+    final userId = (userInfo['userId'] ?? '').toLowerCase().trim();
 
     final response = await http.get(
       url,
@@ -78,14 +88,25 @@ class _MapPageState extends State<MapPage> {
     if (response.statusCode == 200) {
       final Map<MarkerId, Marker> fetchedMarkers = {};
       final decoded = jsonDecode(response.body);
+
       if (decoded is! Map<String, dynamic> || decoded['data'] is! List) {
-        print('Format JSON tidak sesuai');
+        debugPrint('⚠️ Format JSON tidak sesuai');
         return;
       }
+
       final List<dynamic> data = decoded['data'];
 
+      // 🔐 Filter data berdasarkan role
+      final filteredData =
+          userRole == 'admin'
+              ? data
+              : data.where((item) {
+                final markerOwnerId =
+                    (item['createdBy'] ?? '').toString().toLowerCase().trim();
+                return markerOwnerId == userId;
+              }).toList();
 
-      for (var item in data) {
+      for (var item in filteredData) {
         final lat = double.tryParse(item['latitude'].toString());
         final lng = double.tryParse(item['longitude'].toString());
         if (lat == null || lng == null) continue;
@@ -102,12 +123,12 @@ class _MapPageState extends State<MapPage> {
         fetchedMarkers[id] = marker;
       }
 
-      print('Jumlah marker dimuat: ${fetchedMarkers.length}');
       if (!_isDisposed) {
         setState(() {
           _markers.clear();
           _markers.addAll(fetchedMarkers);
         });
+
         if (moveToFirstMarker && fetchedMarkers.isNotEmpty) {
           final lastMarker = fetchedMarkers.values.last;
           mapController?.animateCamera(
@@ -118,7 +139,6 @@ class _MapPageState extends State<MapPage> {
         }
       }
 
-      // ⛳ Fokus ke semua marker (agar tidak di luar layar)
       if (mapController != null && fetchedMarkers.isNotEmpty) {
         final bounds = _createBounds(
           fetchedMarkers.values.map((m) => m.position).toList(),
@@ -126,8 +146,8 @@ class _MapPageState extends State<MapPage> {
         mapController!.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
       }
     } else {
-      print('Gagal memuat marker: ${response.statusCode}');
-      print('Body: ${response.body}');
+      debugPrint('❌ Gagal memuat marker: ${response.statusCode}');
+      debugPrint('Body: ${response.body}');
     }
   }
 
@@ -140,11 +160,11 @@ class _MapPageState extends State<MapPage> {
     );
 
     if (isSaved == true) {
-      await _fetchMarkersFromAPI(
-        moveToFirstMarker: true,
-      ); // Re-fetch markers setelah simpan
+      await _fetchMarkersFromAPI(moveToFirstMarker: true);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Lokasi baru disimpan dan marker diperbarui')),
+        const SnackBar(
+          content: Text('Lokasi baru disimpan dan marker diperbarui'),
+        ),
       );
     }
   }
@@ -169,7 +189,6 @@ class _MapPageState extends State<MapPage> {
     );
   }
 
-  /// Fungsi baru untuk refresh: update lokasi user, ambil marker, lalu pindahkan kamera ke lokasi user
   Future<void> _refreshMap() async {
     await _setCurrentLocation(moveCamera: false);
     await _fetchMarkersFromAPI();
@@ -182,16 +201,14 @@ class _MapPageState extends State<MapPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Google Maps',                    
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 22,
-              ),
-            ),
+        title: const Text(
+          'Google Maps',
+          style: TextStyle(color: Colors.white, fontSize: 22),
+        ),
         backgroundColor: const Color(0xFF2D2E49),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.white,),
+            icon: const Icon(Icons.refresh, color: Colors.white),
             onPressed: () async {
               await _refreshMap();
               if (!_isDisposed) {

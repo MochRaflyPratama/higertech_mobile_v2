@@ -28,8 +28,8 @@ class FolderItemModel {
       longitude: (json['longitude'] as num).toDouble(),
       imageUrl: json['imageUrl'],
       createdAt: json['createdAt'],
-      createdBy: json['createdBy'],
+      createdBy:
+          json['createdBy'], // digunakan untuk filtering berdasarkan user
     );
   }
-
 }
