@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:projectv2/app/modules/home/Homescreen.dart';
 import 'package:projectv2/app/screens/login/register_screen.dart';
 import 'package:projectv2/app/services/auth_service.dart';
+import 'package:projectv2/app/services/api_config.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -14,6 +15,8 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+
+  String selectedServer = ApiConfig.mainServer;
 
   bool _obscurePassword = true;
   bool _isLoading = false;
@@ -44,11 +47,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                Image.asset(
-                  'assets/images/LogoHigertrack.png',
-                    height: 100,
-                    ),
-                   const SizedBox(height: 24),
+                      Image.asset(
+                        'assets/images/LogoHigertrack.png',
+                        height: 100,
+                      ),
+                      const SizedBox(height: 24),
                       Text(
                         'Masuk Akun',
                         style: GoogleFonts.poppins(
@@ -58,10 +61,45 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       const SizedBox(height: 20),
+
+                      /// ⬇️ Tambahkan Dropdown Server
+                      DropdownButtonFormField<String>(
+                        
+                        value: selectedServer,
+                        decoration: InputDecoration(
+                          labelText: 'Pilih Server',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        items: [
+                          DropdownMenuItem(
+                            value: ApiConfig.mainServer,
+                            child: const Text("Server Utama"),
+                          ),
+                          DropdownMenuItem(
+                            value: ApiConfig.cuacaServer,
+                            child: const Text("Server Cuaca"),
+                          ),
+                        ],
+                        onChanged: (value) {
+                          setState(() {
+                            selectedServer = value!;
+                          });
+                        },
+                      ),
+
+                      const SizedBox(height: 8),
+                      Text(
+                        'Pastikan memilih server yang sesuai dengan tempat kamu mendaftar',
+                        style: GoogleFonts.poppins(fontSize: 12, color: Colors.redAccent),
+                      ),
+
+                      const SizedBox(height: 16),
                       TextField(
                         controller: emailController,
                         decoration: InputDecoration(
-                          hintText: 'Masukkan email ',
+                          hintText: 'Masukkan email',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -76,7 +114,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         controller: passwordController,
                         obscureText: _obscurePassword,
                         decoration: InputDecoration(
-                          hintText: 'Masukkan password ',
+                          hintText: 'Masukkan password',
                           suffixIcon: IconButton(
                             icon: Icon(
                               _obscurePassword
@@ -110,19 +148,18 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                           onPressed: _isLoading ? null : _handleLogin,
-                          child:
-                              _isLoading
-                                  ? const CircularProgressIndicator(
+                          child: _isLoading
+                              ? const CircularProgressIndicator(
+                                  color: Colors.white,
+                                )
+                              : Text(
+                                  'Masuk',
+                                  style: GoogleFonts.poppins(
                                     color: Colors.white,
-                                  )
-                                  : Text(
-                                    'Masuk',
-                                    style: GoogleFonts.poppins(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
                                   ),
+                                ),
                         ),
                       ),
                     ],
@@ -150,21 +187,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 12),
-                    // Aktifkan ini jika ingin menampilkan logo Google
-                    // child: Row(
-                    //   mainAxisAlignment: MainAxisAlignment.center,
-                    //   children: [
-                    //     Image.asset('assets/images/google_logo.png', height: 20),
-                    //     const SizedBox(width: 10),
-                    //     Text(
-                    //       'Lanjutkan dengan Google',
-                    //       style: GoogleFonts.poppins(
-                    //         fontSize: 14,
-                    //         color: Colors.black87,
-                    //       ),
-                    //     ),
-                    //   ],
-                    // ),
+                    // Google login button (opsional)
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -199,28 +222,28 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  /// ✅ Login pakai selectedServer
   Future<void> _handleLogin() async {
     setState(() => _isLoading = true);
 
     final success = await AuthService.login(
       emailController.text.trim(),
       passwordController.text.trim(),
+      selectedServer,
     );
 
     setState(() => _isLoading = false);
 
     if (success) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Login berhasil')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Login berhasil')));
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const Homepage()),
       );
     } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Login gagal')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Login gagal ke $selectedServer')));
     }
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:projectv2/app/services/auth_service.dart';
 import 'package:projectv2/app/screens/login/login_screen.dart';
+import 'package:projectv2/app/services/api_config.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -14,6 +15,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+
+  String selectedServer = ApiConfig.mainServer;
 
   bool _obscurePassword = true;
   bool _isLoading = false;
@@ -44,11 +47,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                Image.asset(
-                  'assets/images/LogoHigertrack.png',
-                    height: 100,
-                    ),
-                  const SizedBox(height: 24),
+                      Image.asset(
+                        'assets/images/LogoHigertrack.png',
+                        height: 100,
+                      ),
+                      const SizedBox(height: 24),
                       Text(
                         'Daftar Akun',
                         style: GoogleFonts.poppins(
@@ -58,6 +61,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
                       const SizedBox(height: 24),
+                      DropdownButtonFormField<String>(
+                        value: selectedServer,
+                        decoration: InputDecoration(
+                          labelText: 'Pilih Server',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        items: [
+                          DropdownMenuItem(
+                            value: ApiConfig.mainServer,
+                            child: const Text("Server Utama"),
+                          ),
+                          DropdownMenuItem(
+                            value: ApiConfig.cuacaServer,
+                            child: const Text("Server Cuaca"),
+                          ),
+                        ],
+                        onChanged: (value) {
+                          setState(() {
+                            selectedServer = value!;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 16),
                       TextField(
                         controller: usernameController,
                         decoration: InputDecoration(
@@ -124,19 +152,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                           ),
                           onPressed: _isLoading ? null : _handleRegister,
-                          child:
-                              _isLoading
-                                  ? const CircularProgressIndicator(
+                          child: _isLoading
+                              ? const CircularProgressIndicator(
+                                  color: Colors.white,
+                                )
+                              : Text(
+                                  'Daftar',
+                                  style: GoogleFonts.poppins(
                                     color: Colors.white,
-                                  )
-                                  : Text(
-                                    'Daftar',
-                                    style: GoogleFonts.poppins(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
                                   ),
+                                ),
                         ),
                       ),
                     ],
@@ -155,36 +182,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     Expanded(child: Divider(color: Colors.white70)),
                   ],
-                ),
-                const SizedBox(height: 16),
-                GestureDetector(
-                  onTap: () {
-                    // TODO: Tambahkan register dengan Google jika diperlukan
-                  },
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    // decoration: BoxDecoration(
-                    //   border: Border.all(color: Colors.white),
-                    //   borderRadius: BorderRadius.circular(8),
-                    //   color: Colors.white,
-                    // ),
-                    // Aktifkan jika ingin menampilkan logo Google
-                    // child: Row(
-                    //   mainAxisAlignment: MainAxisAlignment.center,
-                    //   children: [
-                    //     Image.asset('assets/images/google_logo.png', height: 20),
-                    //     const SizedBox(width: 10),
-                    //     Text(
-                    //       'Daftar dengan Google',
-                    //       style: GoogleFonts.poppins(
-                    //         fontSize: 14,
-                    //         color: Colors.black87,
-                    //       ),
-                    //     ),
-                    //   ],
-                    // ),
-                  ),
                 ),
                 const SizedBox(height: 20),
                 GestureDetector(
@@ -225,6 +222,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       emailController.text.trim(),
       passwordController.text.trim(),
       usernameController.text.trim(),
+      selectedServer, // dikirim ke service
     );
 
     setState(() => _isLoading = false);
