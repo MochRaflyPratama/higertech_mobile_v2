@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:projectv2/app/services/api_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 
@@ -26,7 +27,7 @@ class UserModel {
 }
 
 class AuthService {
-  static const String baseUrl = 'http://103.183.75.71:5101';
+  static const String baseUrl = ApiConfig.mainServer;
 
   /// ✅ Simpan token dan data user ke SharedPreferences
   static Future<void> saveTokensAndUser(
@@ -75,7 +76,7 @@ class AuthService {
   }
 
   /// ✅ Login dan decode userId dari token (diperbaiki)
-  static Future<bool> login(String email, String password) async {
+  static Future<bool> login(String email, String password, String serverUrl) async {
     final uri = Uri.parse('$baseUrl/api/apiauth/login');
 
     final response = await http.post(
@@ -123,6 +124,7 @@ class AuthService {
     String email,
     String password,
     String fullname,
+    String serverUrl,
   ) async {
     final uri = Uri.parse('$baseUrl/api/apiauth/register');
 

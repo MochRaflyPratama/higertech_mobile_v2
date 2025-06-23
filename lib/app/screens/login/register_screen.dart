@@ -15,6 +15,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+    final TextEditingController serverTextController = TextEditingController();
+
+    final Map<String, String> serverLabelMap = {
+      'Server Utama': ApiConfig.mainServer,
+      'Server Cuaca': ApiConfig.cuacaServer,
+      'Kalimantan': ApiConfig.mainServer,
+      'Sulawesi': ApiConfig.mainServer,
+      'Citarum': ApiConfig.empatServer,
+    };
+
+      @override
+  void initState() {
+    super.initState();
+    serverTextController.text = 'Server Utama';
+  }
+
 
   String selectedServer = ApiConfig.mainServer;
 
@@ -61,28 +77,35 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
                       const SizedBox(height: 24),
-                      DropdownButtonFormField<String>(
-                        value: selectedServer,
-                        decoration: InputDecoration(
-                          labelText: 'Pilih Server',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        items: [
-                          DropdownMenuItem(
-                            value: ApiConfig.mainServer,
-                            child: const Text("Server Utama"),
-                          ),
-                          DropdownMenuItem(
-                            value: ApiConfig.cuacaServer,
-                            child: const Text("Server Cuaca"),
-                          ),
-                        ],
-                        onChanged: (value) {
-                          setState(() {
-                            selectedServer = value!;
+                      Autocomplete<String>(
+                        optionsBuilder: (TextEditingValue textEditingValue) {
+                          if (textEditingValue.text == '') {
+                            return const Iterable<String>.empty();
+                          }
+                          return serverLabelMap.keys.where((String option) {
+                            return option.toLowerCase().contains(textEditingValue.text.toLowerCase());
                           });
+                        },
+                        onSelected: (String selection) {
+                          serverTextController.text = selection;
+                          setState(() {
+                            selectedServer = serverLabelMap[selection]!;
+                          });
+                        },
+                        fieldViewBuilder: (BuildContext context,
+                            TextEditingController textEditingController,
+                            FocusNode focusNode,
+                            VoidCallback onFieldSubmitted) {
+                          return TextFormField(
+                            controller: textEditingController,
+                            focusNode: focusNode,
+                            decoration: InputDecoration(
+                              labelText: 'Pilih Server',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          );
                         },
                       ),
                       const SizedBox(height: 16),
