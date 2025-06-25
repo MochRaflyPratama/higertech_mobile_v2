@@ -75,6 +75,12 @@ class AuthService {
     return prefs.getString('refreshToken');
   }
 
+  static Future<bool> isLoggedIn() async {
+    final token = await getAccessToken();
+    return token != null && !JwtDecoder.isExpired(token);
+  }
+
+
   /// ✅ Login dan decode userId dari token (diperbaiki)
   static Future<bool> login(String email, String password, String serverUrl) async {
     final uri = Uri.parse('$baseUrl/api/apiauth/login');

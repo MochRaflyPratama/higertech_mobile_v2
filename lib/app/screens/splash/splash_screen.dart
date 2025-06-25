@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:projectv2/app/routes/app_route.dart';
+import 'package:projectv2/app/services/auth_service.dart'; // ⬅️ pastikan ini di-import
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -14,9 +14,19 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 3), () {
-      Get.offAllNamed(AppRoutes.login); // atau AppRoutes.home jika sudah dibuat
-    });
+    checkLoginStatus(); // ⬅️ Ganti Future.delayed dengan pengecekan login
+  }
+
+  void checkLoginStatus() async {
+    await Future.delayed(const Duration(seconds: 2)); // biar splash terlihat sebentar
+
+    final isLoggedIn = await AuthService.isLoggedIn();
+
+    if (isLoggedIn) {
+      Get.offAllNamed(AppRoutes.home); // langsung ke homepage
+    } else {
+      Get.offAllNamed(AppRoutes.login); // arahkan ke login
+    }
   }
 
   @override
@@ -27,13 +37,11 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Logo animasi atau gambar
             Image.asset(
               'assets/images/LogoHigertrack.png',
               height: 120,
             ),
             const SizedBox(height: 24),
-            // Nama aplikasi
             Text(
               "Bapenda Kalteng 1",
               style: TextStyle(
