@@ -19,6 +19,9 @@ class _MapPageState extends State<MapPage> {
   final Map<MarkerId, Marker> _markers = {};
   bool _isDisposed = false;
 
+  // Mode tambah marker
+  bool _isAdding = false;
+
   @override
   void initState() {
     super.initState();
@@ -64,14 +67,12 @@ class _MapPageState extends State<MapPage> {
     }
   }
 
-  /// Ambil info user (role & userId) dari AuthService
   Future<Map<String, String?>> _getUserInfo() async {
     final user = await AuthService.getCurrentUser();
     debugPrint("DEBUG USER: ${user?.id} | ${user?.role}");
     return {'role': user?.role, 'email': user?.email, 'userId': user?.id};
   }
 
-  /// Ambil data marker dari API dan filter sesuai role user
   Future<void> _fetchMarkersFromAPI({bool moveToFirstMarker = false}) async {
     final url = Uri.parse('http://103.183.75.71:5101/api/mappoints');
     final token = await AuthService.getAccessToken();
@@ -96,7 +97,6 @@ class _MapPageState extends State<MapPage> {
 
       final List<dynamic> data = decoded['data'];
 
-      // 🔐 Filter data berdasarkan role
       final filteredData =
           userRole == 'admin'
               ? data
@@ -112,14 +112,54 @@ class _MapPageState extends State<MapPage> {
         if (lat == null || lng == null) continue;
 
         final id = MarkerId(item['id'].toString());
+
         final marker = Marker(
           markerId: id,
           position: LatLng(lat, lng),
-          infoWindow: InfoWindow(
-            title: item['title'] ?? 'Marker',
-            snippet: item['description'] ?? '',
-          ),
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: Text(item['title'] ?? 'Marker'),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (item['imageUrl'] != null &&
+                          item['imageUrl'].toString().isNotEmpty)
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.network(
+                            item['imageUrl'],
+                            width: 240,
+                            height: 140,
+                            fit: BoxFit.cover,
+                            errorBuilder:
+                                (context, error, stackTrace) =>
+                                    const Icon(Icons.broken_image, size: 60),
+                          ),
+                        ),
+                      const SizedBox(height: 8),
+                      Text(
+                        item['description'] ?? '',
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                    ],
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Tutup'),
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
         );
+
         fetchedMarkers[id] = marker;
       }
 
@@ -151,24 +191,6 @@ class _MapPageState extends State<MapPage> {
     }
   }
 
-  Future<void> _onLongPress(LatLng position) async {
-    final bool? isSaved = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => LocationFormPage(position: position),
-      ),
-    );
-
-    if (isSaved == true) {
-      await _fetchMarkersFromAPI(moveToFirstMarker: true);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Lokasi baru disimpan dan marker diperbarui'),
-        ),
-      );
-    }
-  }
-
   LatLngBounds _createBounds(List<LatLng> positions) {
     final southwestLat = positions
         .map((p) => p.latitude)
@@ -197,6 +219,38 @@ class _MapPageState extends State<MapPage> {
     }
   }
 
+  Future<void> _onAddMarkerConfirm() async {
+    if (mapController == null) return;
+
+    final bounds = await mapController!.getVisibleRegion();
+    final center = LatLng(
+      (bounds.northeast.latitude + bounds.southwest.latitude) / 2,
+      (bounds.northeast.longitude + bounds.southwest.longitude) / 2,
+    );
+
+    setState(() {
+      _isAdding = false;
+    });
+
+    final bool? isSaved = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => LocationFormPage(position: center),
+      ),
+    );
+
+    if (isSaved == true) {
+      await _fetchMarkersFromAPI(moveToFirstMarker: true);
+      if (!_isDisposed) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Lokasi baru disimpan dan marker diperbarui'),
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -222,18 +276,41 @@ class _MapPageState extends State<MapPage> {
           ),
         ],
       ),
-      body: GoogleMap(
-        initialCameraPosition: CameraPosition(
-          target: _currentPosition,
-          zoom: 15,
-        ),
-        onMapCreated: (controller) => mapController = controller,
-        onLongPress: _onLongPress,
-        markers: Set<Marker>.of(_markers.values),
-        myLocationEnabled: true,
-        myLocationButtonEnabled: true,
-        zoomControlsEnabled: false,
+      body: Stack(
+        children: [
+          GoogleMap(
+            initialCameraPosition: CameraPosition(
+              target: _currentPosition,
+              zoom: 15,
+            ),
+            onMapCreated: (controller) => mapController = controller,
+            markers: Set<Marker>.of(_markers.values),
+            myLocationEnabled: true,
+            myLocationButtonEnabled: true,
+            zoomControlsEnabled: false,
+          ),
+          if (_isAdding)
+            const Center(
+              child: Icon(Icons.control_point, color: Colors.red, size: 25),
+            ),
+        ],
       ),
+      floatingActionButton:
+          _isAdding
+              ? FloatingActionButton.extended(
+                onPressed: _onAddMarkerConfirm,
+                icon: const Icon(Icons.check),
+                label: const Text('Pilih Lokasi'),
+                backgroundColor: Colors.green,
+              )
+              : FloatingActionButton(
+                onPressed: () {
+                  setState(() {
+                    _isAdding = true;
+                  });
+                },
+                child: const Icon(Icons.add_location_alt),
+              ),
     );
   }
 }

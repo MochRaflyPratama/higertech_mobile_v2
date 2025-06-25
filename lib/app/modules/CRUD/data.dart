@@ -44,13 +44,12 @@ class _LocationFormPageState extends State<LocationFormPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Form Lokasi',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 22,
-          ),
-      ),
-      backgroundColor: const Color(0xFF2D2E49),
+      appBar: AppBar(
+        title: const Text(
+          'Form Lokasi',
+          style: TextStyle(color: Colors.white, fontSize: 22),
+        ),
+        backgroundColor: const Color(0xFF2D2E49),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -108,7 +107,9 @@ class _LocationFormPageState extends State<LocationFormPage> {
                   final lat = widget.position.latitude.toString();
                   final lng = widget.position.longitude.toString();
 
-                  var uri = Uri.parse('http://103.183.75.71:5101/api/mappoints');
+                  var uri = Uri.parse(
+                    'http://103.183.75.71:5101/api/mappoints',
+                  );
 
                   var request =
                       http.MultipartRequest('POST', uri)
@@ -126,6 +127,9 @@ class _LocationFormPageState extends State<LocationFormPage> {
                     );
                     request.files.add(imageFile);
                   }
+                  final user = await AuthService.getCurrentUser();
+                  final userId = user?.id ?? '';
+                  request.fields['CreatedBy'] = userId; // <-- Tambahkan ini
 
                   var response = await request.send();
                   print('Status code: \\${response.statusCode}');
