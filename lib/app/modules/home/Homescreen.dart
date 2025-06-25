@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart'; // Penting untuk Get.to() dan Get.toNamed()
+import 'package:get/get.dart';
 import '../../routes/app_route.dart';
 
 class Homepage extends StatelessWidget {
   const Homepage({Key? key}) : super(key: key);
 
   void _openMapFromLocation() async {
-    // Dummy result untuk demonstrasi
-    final result = await Get.toNamed(AppRoutes.location); // ganti jika pakai widget langsung
-
+    final result = await Get.toNamed(AppRoutes.location);
     if (result != null && result is Map<String, double>) {
       final lat = result['lat']!.toString();
       final lng = result['lng']!.toString();
@@ -16,95 +14,115 @@ class Homepage extends StatelessWidget {
     }
   }
 
+  void _showAppVersionDialog() {
+    Get.defaultDialog(
+      title: "Tentang Aplikasi",
+      content: const Text("Versi 1.0.0\nHigertrack App"),
+      textConfirm: "Tutup",
+      confirmTextColor: Colors.white,
+      onConfirm: () => Get.back(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
-
     return Scaffold(
       backgroundColor: const Color(0xFF2D2E49),
       body: SafeArea(
-        child: Stack(
+        child: Column(
           children: [
-            // Lingkaran besar di kiri bawah
-           Positioned(
-              left: -screenWidth * 0.3,
-              top: (MediaQuery.of(context).size.height - screenWidth * 0.9) / 2,
-              child: Container(
-                width: screenWidth * 0.8,
-                height: screenWidth * 0.8,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Color(0xFFE0E0E0),
-                ),
-                child: GestureDetector(
-                  onTap: () => Get.toNamed(AppRoutes.location), 
-                  child:  Image.asset('assets/images/LogoHigertrack.png', fit: BoxFit.cover,),
-                )
+            const SizedBox(height: 30),
+            // Logo di atas
+            Center(
+              child: Image.asset(
+                'assets/images/LogoHigertrack.png',
+                width: 80,
               ),
             ),
+            const SizedBox(height: 30),
 
+            // Menu list vertikal
+            _MenuItem(
+              icon: Icons.map,
+              label: 'Peta',
+              onTap: _openMapFromLocation,
+            ),
+             _MenuItem(
+              icon: Icons.folder,
+              label: 'Folder',
+              onTap: () => Get.toNamed(AppRoutes.folder),
+            ),
+            _MenuItem(
+              icon: Icons.settings,
+              label: 'Pengaturan',
+              onTap: () => Get.toNamed(AppRoutes.settings),
+            ),
+           
 
-            // Ikon Map (atas tengah)
-            Positioned(
-              top: 70,
-              left: screenWidth / 2 - 50,
-              child: _buildIconButton(
-                icon: Icons.map,
-                size: 100,
-                iconSize: 50,
-                onTap: _openMapFromLocation,
+            const Spacer(),
+            GestureDetector(
+              onTap: _showAppVersionDialog,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Icon(Icons.info_outline, size: 16, color: Colors.white70),
+                  SizedBox(width: 5),
+                  Text(
+                    "Versi 1.0.0",
+                    style: TextStyle(
+                      color: Colors.white70,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ],
               ),
             ),
-
-            // Ikon Settings (kanan tengah)
-            Positioned(
-              top: screenHeight / 2 - 50,
-              right: 30,
-              child: _buildIconButton(
-                icon: Icons.settings,
-                size: 100,
-                iconSize: 50,
-                onTap: () => Get.toNamed(AppRoutes.settings),
-              ),
-            ),
-
-            // Ikon Folder (bawah tengah)
-            Positioned(
-              bottom: 100,
-              left: MediaQuery.of(context).size.width / 2 - 50,
-              child: _buildIconButton(
-                icon: Icons.folder,
-                size: 100,
-                iconSize: 50,
-                onTap: () {
-                  Get.toNamed(AppRoutes.folder); 
-                },
-              ),
-            ),
-
+            const SizedBox(height: 20),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildIconButton({
-    required IconData icon,
-    required VoidCallback onTap,
-    double size = 80,
-    double iconSize = 40,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        width: size,
-        height: size,
-        decoration: const BoxDecoration(
-          shape: BoxShape.circle,
-          color: Color(0xFFE0E0E0),
+class _MenuItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _MenuItem({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            children: [
+              Icon(icon, size: 28, color: Colors.black87),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  label,
+                  style: const TextStyle(fontSize: 16, color: Colors.black87),
+                ),
+              ),
+              const Icon(Icons.chevron_right, color: Colors.black54),
+            ],
+          ),
         ),
-        child: Icon(icon, size: iconSize, color: Colors.black),
       ),
     );
   }
