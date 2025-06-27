@@ -44,13 +44,12 @@ class _LocationFormPageState extends State<LocationFormPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Form Lokasi',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 22,
-          ),
-      ),
-      backgroundColor: const Color(0xFF2D2E49),
+      appBar: AppBar(
+        title: const Text(
+          'Form Lokasi',
+          style: TextStyle(color: Colors.white, fontSize: 22),
+        ),
+        backgroundColor: const Color(0xFF2D2E49),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -108,7 +107,7 @@ class _LocationFormPageState extends State<LocationFormPage> {
                   final lat = widget.position.latitude.toString();
                   final lng = widget.position.longitude.toString();
 
-                  var uri = Uri.parse('http://103.183.75.71:5101/api/mappoints');
+                  var uri = Uri.parse('http://10.0.2.2:5101/api/mappoints');
 
                   var request =
                       http.MultipartRequest('POST', uri)
@@ -159,7 +158,7 @@ class _LocationFormPageState extends State<LocationFormPage> {
                   final refreshToken = await AuthService.getRefreshToken();
                   if (refreshToken == null) return false;
                   final uri = Uri.parse(
-                    'http://103.183.75.71:5101/api/apiauth/refresh',
+                    'http://10.0.2.2:5101/api/apiauth/refresh',
                   );
                   final response = await http.post(
                     uri,

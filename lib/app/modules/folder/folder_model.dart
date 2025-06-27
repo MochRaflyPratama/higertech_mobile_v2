@@ -7,6 +7,7 @@ class FolderItemModel {
   final String? imageUrl;
   final String createdAt;
   final String? createdBy;
+  final String? createdUserName;
 
   FolderItemModel({
     required this.id,
@@ -17,6 +18,7 @@ class FolderItemModel {
     this.imageUrl,
     required this.createdAt,
     this.createdBy,
+    this.createdUserName,
   });
 
   factory FolderItemModel.fromJson(Map<String, dynamic> json) {
@@ -28,8 +30,8 @@ class FolderItemModel {
       longitude: (json['longitude'] as num).toDouble(),
       imageUrl: json['imageUrl'],
       createdAt: json['createdAt'],
-      createdBy:
-          json['createdBy'], // digunakan untuk filtering berdasarkan user
+      createdBy: json['createdBy'],
+      createdUserName: json['createdUserName'],
     );
   }
 }

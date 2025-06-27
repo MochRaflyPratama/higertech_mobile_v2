@@ -28,14 +28,11 @@ class _SplashScreenState extends State<SplashScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // Logo animasi atau gambar
-            Image.asset(
-              'assets/images/LogoHigertrack.png',
-              height: 120,
-            ),
+            Image.asset('assets/images/LogoHigertrack.png', height: 120),
             const SizedBox(height: 24),
             // Nama aplikasi
             Text(
-              "Bapenda Kalteng 1",
+              "HigerTrack",
               style: TextStyle(
                 fontSize: 26,
                 fontWeight: FontWeight.bold,
@@ -44,9 +41,7 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            const CircularProgressIndicator(
-              color: Colors.white,
-            ),
+            const CircularProgressIndicator(color: Colors.white),
           ],
         ),
       ),

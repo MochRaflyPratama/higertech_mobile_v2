@@ -4,7 +4,7 @@ import 'package:projectv2/app/modules/folder/folder_model.dart';
 import 'package:projectv2/app/services/auth_service.dart';
 
 class FolderRepository {
-  final String baseUrl = 'http://103.183.75.71:5101/api/MapPoints';
+  final String baseUrl = 'http://10.0.2.2:5101/api/MapPoints';
 
   /// Ambil semua map points dari API
   Future<List<FolderItemModel>> fetchMapPoints() async {

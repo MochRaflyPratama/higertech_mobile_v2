@@ -26,7 +26,7 @@ class UserModel {
 }
 
 class AuthService {
-  static const String baseUrl = 'http://103.183.75.71:5101';
+  static const String baseUrl = 'http://10.0.2.2:5101';
 
   /// ✅ Simpan token dan data user ke SharedPreferences
   static Future<void> saveTokensAndUser(

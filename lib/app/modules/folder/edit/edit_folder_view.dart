@@ -31,9 +31,15 @@ class _EditFolderViewState extends State<EditFolderView> {
   void initState() {
     super.initState();
     titleController = TextEditingController(text: widget.point.title ?? '');
-    descriptionController = TextEditingController(text: widget.point.description ?? '');
-    latController = TextEditingController(text: widget.point.latitude.toString());
-    longController = TextEditingController(text: widget.point.longitude.toString());
+    descriptionController = TextEditingController(
+      text: widget.point.description ?? '',
+    );
+    latController = TextEditingController(
+      text: widget.point.latitude.toString(),
+    );
+    longController = TextEditingController(
+      text: widget.point.longitude.toString(),
+    );
   }
 
   @override
@@ -69,19 +75,24 @@ class _EditFolderViewState extends State<EditFolderView> {
     }
 
     // Validasi sederhana
-    if (titleController.text.isEmpty || latController.text.isEmpty || longController.text.isEmpty) {
+    if (titleController.text.isEmpty ||
+        latController.text.isEmpty ||
+        longController.text.isEmpty) {
       setState(() => isLoading = false);
       Get.snackbar('Validasi', 'Semua data wajib diisi.');
       return;
     }
 
-    final uri = Uri.parse('http://103.183.75.71:5101/api/MapPoints/${widget.point.id}');
-    final request = http.MultipartRequest('PUT', uri)
-      ..fields['Title'] = titleController.text
-      ..fields['Description'] = descriptionController.text
-      ..fields['Latitude'] = latController.text
-      ..fields['Longitude'] = longController.text
-      ..headers['Authorization'] = 'Bearer $token';
+    final uri = Uri.parse(
+      'http://10.0.2.2:5101/api/MapPoints/${widget.point.id}',
+    );
+    final request =
+        http.MultipartRequest('PUT', uri)
+          ..fields['Title'] = titleController.text
+          ..fields['Description'] = descriptionController.text
+          ..fields['Latitude'] = latController.text
+          ..fields['Longitude'] = longController.text
+          ..headers['Authorization'] = 'Bearer $token';
 
     if (selectedImage != null) {
       final image = await http.MultipartFile.fromPath(
@@ -97,8 +108,12 @@ class _EditFolderViewState extends State<EditFolderView> {
     setState(() => isLoading = false);
 
     if (response.statusCode == 200 || response.statusCode == 204) {
-      Get.snackbar('Sukses', 'Data berhasil diperbarui', snackPosition: SnackPosition.BOTTOM);
-      Get.find<FolderController>().fetchPoints();// refresh data
+      Get.snackbar(
+        'Sukses',
+        'Data berhasil diperbarui',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      Get.find<FolderController>().fetchPoints(); // refresh data
       Future.delayed(const Duration(milliseconds: 500), () {
         if (Get.isSnackbarOpen) {
           Get.closeCurrentSnackbar();
@@ -164,16 +179,16 @@ class _EditFolderViewState extends State<EditFolderView> {
             if (widget.point.imageUrl != null && selectedImage == null)
               Image.network(widget.point.imageUrl!, height: 120),
 
-            if (selectedImage != null)
-              Image.file(selectedImage!, height: 120),
+            if (selectedImage != null) Image.file(selectedImage!, height: 120),
 
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: isLoading ? null : _updatePoint,
               style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-              child: isLoading
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text('Simpan Perubahan'),
+              child:
+                  isLoading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text('Simpan Perubahan'),
             ),
           ],
         ),
